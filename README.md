@@ -3,4 +3,6 @@ NoisyDIRECT is a simulation-based robust optimization algorithm that extends the
 
 The algorithm is coded as a package in the noisy_direct.py file, while the demo.py file provides some demos on test functions.
 
-The following is an exmple result Goldstein-Price function with and without noise
+The following are example results obtained from solving the Goldstein-Price function with and without noise.
+
+![](demo20%figures/Goldstein-Price-function.png)
