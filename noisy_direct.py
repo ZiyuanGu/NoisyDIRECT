@@ -11,6 +11,7 @@ from scipy.spatial import ConvexHull
 NoisyDirect is a simulation-based robust optimization algorithm that extends the original DIRECT algorithm for noisy objective fucntions.
 
 References:
+    Gu, Z., Li, Y., Saberi, M., Rashidi, T.H., Liu, Z., 2023. Macroscopic parking dynamics and equitable pricing: Integrating trip-based modeling with simulation-based robust optimization. Transp. Res. Part B 173, 354-381.
     Jones, D.R., Perttunen, C.D., Stuckman, B.E., 1993. Lipschitzian optimization without the Lipschitz constant. J. Optim. Theory Appl. 79(1), 157-181.
     Deng, G., Ferris, M.C., 2007. Extension of the DIRECT optimization algorithm for noisy functions, 2007 Winter Simulation Conference. IEEE, Washington, DC, pp. 497-504.
     Deng, G., Ferris, M.C., 2006. Adaptation of the UOBYQA Algorithm for Noisy Functions, Proceedings of the 2006 Winter Simulation Conference. IEEE, Monterey, CA, pp. 312-319.
@@ -32,7 +33,7 @@ Parameters:
     
 Usage:
     for deterministic objective functions, noisy_direct = False and min_eval_per_point = max_eval_per_point = 1
-    for stochastic objective functions and fixed-number sample-path optimization, noisy_direct = False and and min_eval_per_point = max_eval_per_point = any value other than 1
+    for stochastic objective functions and fixed-number sample-path optimization, noisy_direct = False and min_eval_per_point = max_eval_per_point = any value other than 1
     for stochastic objective functions and variable-number sample-path optimization, noisy_direct = True
 """
 
@@ -60,6 +61,8 @@ class NoisyDirect:
         self.x_min = None # numpy array of optimal decision vectors for each iteration
         self.lower_bounds = None # numpy array of lower bounds on the decision vector
         self.upper_bounds = None # numpy array of upper bounds on the decision vector
+        self.total_func_eval_series = [] # total number of function evaluations per iteration
+        self.total_point_eval_series = [] # total number of evaluated decion vectors per iteration
     
     
     """check the correctness of the input bounds"""
@@ -370,8 +373,11 @@ class NoisyDirect:
                 sorted_dims, current_x_min = self._sort_dims(c_neighbors, func, current_x_min)
                 self._divide_c(c, c_neighbors, sorted_dims[::-1])
             self.x_min = np.concatenate((self.x_min, current_x_min.reshape(1, -1)), axis=0) # record the history of minima
+            self.total_func_eval_series.append(self.total_func_eval)
+            self.total_point_eval_series.append(self.total_point_eval)
             # display results for each iteration
             print("\niteration {}".format(self.iter_ + 1))
             print("   " + "current optimal x: {}".format(self._back_transform(self.x_min[-1])))
             print("   " + "current optimal y: {}".format(self._obj_eval(self.x_min[-1])))
+            print("   " + "current func eval: {}".format(self.total_func_eval))
             self.iter_ += 1
